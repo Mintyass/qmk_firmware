@@ -21,3 +21,4 @@
 
 #define TAPPING_TERM 200
 #define COMBO_TERM 50
+#define ONESHOT_TIMEOUT 2000
