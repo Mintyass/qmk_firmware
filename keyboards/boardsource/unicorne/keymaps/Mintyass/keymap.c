@@ -126,6 +126,7 @@ extern matrix_row_t matrix[MATRIX_ROWS];
 #define SLEEP_TIMEOUT 15000
 
 static bool OLED_redraw = true;
+char wpm_str[10];
 
 static const uint8_t bongofont[] PROGMEM = { \
     0xC1, 0xC1, 0xC2, 0x04, 0x08, 0x10, \
@@ -403,6 +404,45 @@ void draw_bongocat(void) {
     }
 }
 
+//
+// Render left OLED display
+//
+static void render_status(void) {
+
+    // WPM
+    oled_write_P(PSTR("      "), false);
+    sprintf(wpm_str, "%03d", get_current_wpm());
+    oled_write(wpm_str, false);
+    oled_write_P(PSTR("   WPM"), false);
+
+    // GUI keys indicator
+    oled_write_P(PSTR("\n       "), false);
+
+    // Caps lock indicator
+    led_t led_state = host_keyboard_led_state();
+    oled_write_P(led_state.caps_lock ? PSTR("\n      CAPS LOCK") : PSTR("\n       "), false);
+
+    // Layer indicator
+    oled_write_P(PSTR("\n      LAYER "), false);
+
+    switch (get_highest_layer(layer_state)) {
+        case 3:
+        oled_write_P(PSTR("FUNC "), false);
+        break;
+        case 2:
+	    oled_write_P(PSTR("RAISE"), false);
+	    break;
+	// Layer 1
+        case 1:
+            oled_write_P(PSTR("LOWER"), false);
+            break;
+    // Layer 0
+        default:
+            oled_write_P(PSTR("BASE "), false);
+            break;
+    }
+}
+
 static const char PROGMEM qmk_logo[] = {
         0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94,
         0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4,
@@ -411,6 +451,10 @@ static const char PROGMEM qmk_logo[] = {
 
 bool oled_task_user(void) {
     if (is_keyboard_master()) {
+        // oled_write_P(qmk_logo, false);
+        render_status();
+        return false;
+    } else {
         if (OLED_redraw) {
             oled_clear();
             last_bongo_frame = 12; //force a redraw
@@ -418,9 +462,6 @@ bool oled_task_user(void) {
             OLED_redraw = false;
         }
         draw_bongocat();
-        return false;
-    } else {
-        oled_write_P(qmk_logo, false);
         return false;
     }
 }
