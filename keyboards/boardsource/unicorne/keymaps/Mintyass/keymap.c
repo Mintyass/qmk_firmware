@@ -113,6 +113,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 #endif // OTHER_KEYMAP_C
 
 
+#ifndef OLED_ENABLE
+    #define OLED_ENABLE
+#endif
+
 /* Bongocat animation copied from the evo70 by customMK, slight modifications to make it standalone */
 #ifdef OLED_ENABLE
 #include "matrix.h"
@@ -410,37 +414,36 @@ void draw_bongocat(void) {
 static void render_status(void) {
 
     // WPM
-    oled_write_P(PSTR("      "), false);
+    oled_write_P(PSTR("\n"), false);
     sprintf(wpm_str, "%03d", get_current_wpm());
     oled_write(wpm_str, false);
-    oled_write_P(PSTR("   WPM"), false);
-
-    // GUI keys indicator
-    oled_write_P(PSTR("\n       "), false);
-
-    // Caps lock indicator
-    led_t led_state = host_keyboard_led_state();
-    oled_write_P(led_state.caps_lock ? PSTR("\n      CAPS LOCK") : PSTR("\n       "), false);
+    oled_write_P(PSTR("  WPM\n\n"), false);
 
     // Layer indicator
-    oled_write_P(PSTR("\n      LAYER "), false);
+    oled_write_P(PSTR("\nLAYER\n"), false);
 
     switch (get_highest_layer(layer_state)) {
+        // Layer 3
         case 3:
-        oled_write_P(PSTR("FUNC "), false);
-        break;
+            oled_write_P(PSTR("FUNC "), false);
+            break;
+        // Layer 2
         case 2:
-	    oled_write_P(PSTR("RAISE"), false);
-	    break;
-	// Layer 1
+            oled_write_P(PSTR("RAISE"), false);
+            break;
+        // Layer 1
         case 1:
             oled_write_P(PSTR("LOWER"), false);
             break;
-    // Layer 0
+        // Layer 0
         default:
             oled_write_P(PSTR("BASE "), false);
             break;
     }
+
+    // Caps lock indicator
+    led_t led_state = host_keyboard_led_state();
+    oled_write_P(led_state.caps_lock ? PSTR("\n      CAPS LOCK") : PSTR("\n     \n\n "), false);
 }
 
 static const char PROGMEM qmk_logo[] = {
