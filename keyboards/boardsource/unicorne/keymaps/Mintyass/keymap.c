@@ -243,7 +243,7 @@ const uint8_t bongo_line_data[8][26] PROGMEM = {
     45, 34, 12, 60, 60, 60}
 };
 
-enum anin_states { sleep, idle, prep, tap };
+enum anim_states { sleep, idle, prep, tap };
 uint8_t anim_state = idle;
 uint32_t idle_timeout_timer = 0;
 uint32_t anim_timer = 0;
